@@ -1,1 +1,281 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TKM China - Sargyt Platformasy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { -webkit-tap-highlight-color: transparent; }
+    .pb-safe { padding-bottom: calc(4rem + env(safe-area-inset-bottom)); }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased text-gray-800 pb-safe">
 
+  <!-- 1. REGISTRASIÝA / GIRİŞ EKRANI -->
+  <div id="authScreen" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 text-center">
+      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 text-2xl">
+        <i class="fa-solid fa-bag-shopping"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-1">TKM China</h2>
+      <p class="text-gray-500 text-sm mb-6">Sargyt etmek üçin ilki bilen ulgama girilmelidir</p>
+
+      <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 text-left">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Ad / Familya</label>
+          <input type="text" id="regName" placeholder="Meselem: Selim Berdiyew" required
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Telefon belgi</label>
+          <div class="flex">
+            <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm font-semibold">+993</span>
+            <input type="tel" id="regPhone" placeholder="65123456" required pattern="[0-9]{8}"
+              class="w-full px-4 py-3 border border-gray-300 rounded-r-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+          </div>
+        </div>
+        <button type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 transition transform active:scale-95 text-base mt-2">
+          Registrasiýa bol
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ANA UYGULAMA KAPSAYICI -->
+  <div id="mainApp" class="hidden min-h-screen">
+
+    <!-- ARAMA BAR VE ÜST HEADER -->
+    <header class="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
+      <div class="relative flex items-center">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-gray-400"></i>
+        <input type="text" id="searchInput" oninput="filterProducts()" placeholder="Harytlary gözleň..."
+          class="w-full bg-gray-100 text-sm rounded-full pl-10 pr-10 py-2.5 outline-none focus:ring-2 focus:ring-red-500 transition">
+        <i class="fa-solid fa-camera absolute right-3.5 text-gray-400"></i>
+      </div>
+      <!-- KATEGORİLER -->
+      <div class="flex space-x-6 overflow-x-auto mt-3 text-sm font-semibold text-gray-600 no-scrollbar pb-1">
+        <span class="text-red-600 border-b-2 border-red-600 pb-1 whitespace-nowrap">Ählisi</span>
+        <span class="whitespace-nowrap hover:text-red-600">Telefonlar</span>
+        <span class="whitespace-nowrap hover:text-red-600">Eşikler</span>
+        <span class="whitespace-nowrap hover:text-red-600">Aksessuarlar</span>
+        <span class="whitespace-nowrap hover:text-red-600">Oýunlar</span>
+      </div>
+    </header>
+
+    <!-- SAYFA 1: AŇNA SOWDA (ÜRÜNLER) -->
+    <main id="homeTab" class="p-3">
+      <div id="productGrid" class="grid grid-cols-2 gap-3">
+        <!-- JS ile dinamik eklenecek -->
+      </div>
+    </main>
+
+    <!-- SAYFA 2: SARGYTLARYM -->
+    <main id="ordersTab" class="p-4 hidden">
+      <h1 class="text-xl font-bold text-gray-900 mb-4">Meniň Sargytlarym</h1>
+      <div id="ordersList" class="space-y-3">
+        <p class="text-gray-500 text-center py-8">Heniz sargyt etmediňiz.</p>
+      </div>
+    </main>
+
+    <!-- SAYFA 3: HESABYM -->
+    <main id="profileTab" class="p-4 hidden">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4 flex items-center space-x-4">
+        <div class="w-14 h-14 bg-red-500 rounded-full flex items-center justify-center text-white text-xl font-bold" id="profileAvatar">U</div>
+        <div>
+          <h2 class="text-lg font-bold text-gray-900" id="profileName">Ulanyjy</h2>
+          <p class="text-sm text-gray-500" id="profilePhone">+993 -- ------</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <button onclick="toggleAdminPanel()" class="w-full px-4 py-3.5 flex items-center justify-between border-b border-gray-100 text-left hover:bg-gray-50">
+          <span class="font-medium text-gray-700"><i class="fa-solid fa-user-shield text-red-500 mr-2.5"></i> Admin Panel</span>
+          <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+        </button>
+        <button onclick="logout()" class="w-full px-4 py-3.5 flex items-center justify-between text-left text-red-600 hover:bg-gray-50">
+          <span class="font-medium"><i class="fa-solid fa-right-from-bracket mr-2.5"></i> Çykmak</span>
+        </button>
+      </div>
+
+      <!-- ADMIN PANEL (GİZLİ SEKSİYON) -->
+      <div id="adminPanel" class="hidden mt-6 bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+        <h3 class="text-base font-bold text-gray-900 mb-3">Täze Haryt Goşmak (Admin)</h3>
+        <form onsubmit="handleAddProduct(event)" class="space-y-3">
+          <input type="text" id="adminTitle" placeholder="Harydyň ady" required class="w-full p-2.5 border rounded-lg text-sm">
+          <input type="text" id="adminPrice" placeholder="Bahasy (¥ veya TMT)" required class="w-full p-2.5 border rounded-lg text-sm">
+          <input type="url" id="adminImage" placeholder="Surat URL (https://...)" required class="w-full p-2.5 border rounded-lg text-sm">
+          <input type="text" id="adminBadge" placeholder="Belgi (Bestseller, Sale vb.)" class="w-full p-2.5 border rounded-lg text-sm">
+          <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-bold text-sm">Harydy Sayta Goş</button>
+        </form>
+      </div>
+    </main>
+
+    <!-- ALT NAVİGASYON BAR (PINDUODUO TARZI) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2 z-40">
+      <button onclick="switchTab('home')" id="navHome" class="flex flex-col items-center text-red-600">
+        <i class="fa-solid fa-house text-lg"></i>
+        <span class="text-[10px] font-medium mt-0.5">Baş Sahypa</span>
+      </button>
+      <button onclick="switchTab('orders')" id="navOrders" class="flex flex-col items-center text-gray-400">
+        <i class="fa-solid fa-box text-lg"></i>
+        <span class="text-[10px] font-medium mt-0.5">Sargytlarym</span>
+      </button>
+      <button onclick="switchTab('profile')" id="navProfile" class="flex flex-col items-center text-gray-400">
+        <i class="fa-solid fa-user text-lg"></i>
+        <span class="text-[10px] font-medium mt-0.5">Hesabym</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script>
+    // VARSAYILAN TEST ÜRÜNLERİ (PINDUODUO FORMATINDA)
+    let products = [
+      { id: 1, title: 'Woven Soft Shell Phone Case', price: '¥ 5.7', sold: '1146 Sold', image: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400', badge: '991 Favorites' },
+      { id: 2, title: 'Titanium Steel Non-Fading Bracelet', price: '¥ 5.89', sold: '2471 Sold', image: 'https://images.unsplash.com/photo-1611591475140-0268ec38706c?w=400', badge: 'Bestseller' },
+      { id: 3, title: 'Nivea Antiperspirant Roll-On', price: '¥ 8.93', sold: '26K+ Sold', image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400', badge: 'Trending' },
+      { id: 4, title: 'Double-Layer Polished Cloth', price: '¥ 1.52', sold: '7058 Sold', image: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=400', badge: 'Weekly Sale' }
+    ];
+
+    let user = JSON.parse(localStorage.getItem('tkmUser')) || null;
+    let myOrders = JSON.parse(localStorage.getItem('tkmOrders')) || [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (user) {
+        showApp();
+      }
+      renderProducts(products);
+    });
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value;
+      const phone = '+993' + document.getElementById('regPhone').value;
+      user = { name, phone };
+      localStorage.setItem('tkmUser', JSON.stringify(user));
+      showApp();
+    }
+
+    function showApp() {
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      document.getElementById('profileName').innerText = user.name;
+      document.getElementById('profilePhone').innerText = user.phone;
+      document.getElementById('profileAvatar').innerText = user.name.charAt(0).toUpperCase();
+    }
+
+    function renderProducts(items) {
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = items.map(p => `
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col justify-between">
+          <div>
+            <div class="relative">
+              <img src="${p.image}" class="w-full h-40 object-cover">
+              ${p.badge ? `<span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">${p.badge}</span>` : ''}
+            </div>
+            <div class="p-2.5">
+              <h3 class="text-xs font-medium text-gray-800 line-clamp-2">${p.title}</h3>
+              <div class="mt-2 flex items-baseline justify-between">
+                <span class="text-red-600 font-bold text-sm">${p.price}</span>
+                <span class="text-[10px] text-gray-400">${p.sold}</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-2.5 pt-0">
+            <button onclick="orderProduct('${p.title}')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 rounded-lg text-xs shadow transition">Sargyt et</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterProducts() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = products.filter(p => p.title.toLowerCase().includes(q));
+      renderProducts(filtered);
+    }
+
+    async function orderProduct(title) {
+      if (!confirm(`"${title}" sargyt etmek isleýärsiňizmi?`)) return;
+
+      const orderData = { user: user.name, phone: user.phone, product: title, date: new Date().toLocaleDateString() };
+      myOrders.push(orderData);
+      localStorage.setItem('tkmOrders', JSON.stringify(myOrders));
+
+      await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+
+      alert('Sargydyňyz kabul edildi! Telegram-a ugradyldy.');
+    }
+
+    function switchTab(tab) {
+      document.getElementById('homeTab').classList.add('hidden');
+      document.getElementById('ordersTab').classList.add('hidden');
+      document.getElementById('profileTab').classList.add('hidden');
+      
+      document.getElementById('navHome').className = "flex flex-col items-center text-gray-400";
+      document.getElementById('navOrders').className = "flex flex-col items-center text-gray-400";
+      document.getElementById('navProfile').className = "flex flex-col items-center text-gray-400";
+
+      if(tab === 'home') {
+        document.getElementById('homeTab').classList.remove('hidden');
+        document.getElementById('navHome').className = "flex flex-col items-center text-red-600";
+      } else if(tab === 'orders') {
+        document.getElementById('ordersTab').classList.remove('hidden');
+        document.getElementById('navOrders').className = "flex flex-col items-center text-red-600";
+        renderOrders();
+      } else if(tab === 'profile') {
+        document.getElementById('profileTab').classList.remove('hidden');
+        document.getElementById('navProfile').className = "flex flex-col items-center text-red-600";
+      }
+    }
+
+    function renderOrders() {
+      const list = document.getElementById('ordersList');
+      if (myOrders.length === 0) {
+        list.innerHTML = '<p class="text-gray-500 text-center py-8">Heniz sargyt etmediňiz.</p>';
+        return;
+      }
+      list.innerHTML = myOrders.map(o => `
+        <div class="bg-white p-3.5 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
+          <div>
+            <h4 class="font-bold text-sm text-gray-800">${o.product}</h4>
+            <p class="text-xs text-gray-400 mt-0.5">${o.date}</p>
+          </div>
+          <span class="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">Kabul edildi</span>
+        </div>
+      `).join('');
+    }
+
+    function toggleAdminPanel() {
+      document.getElementById('adminPanel').classList.toggle('hidden');
+    }
+
+    function handleAddProduct(e) {
+      e.preventDefault();
+      const newP = {
+        id: Date.now(),
+        title: document.getElementById('adminTitle').value,
+        price: document.getElementById('adminPrice').value,
+        sold: 'Täze',
+        image: document.getElementById('adminImage').value,
+        badge: document.getElementById('adminBadge').value
+      };
+      products.unshift(newP);
+      renderProducts(products);
+      alert('Haryt üstünlikli goşuldy!');
+      e.target.reset();
+      switchTab('home');
+    }
+
+    function logout() {
+      localStorage.removeItem('tkmUser');
+      location.reload();
+    }
+  </script>
+</body>
+</html>
